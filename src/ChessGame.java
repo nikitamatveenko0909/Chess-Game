@@ -202,18 +202,44 @@ public class ChessGame {
 
                 break;
             case "rook":
-                if((xp - piece.xp) == 0 ){
+                if((xp - piece.xp) == 0 || (yp - piece.yp) == 0){
                     boolean legal = true;
-                    System.out.println("207: " + piece.yp);
-                    System.out.println("208: " + yp);
-                    for(int newY = piece.yp; newY<yp; newY++){
-                        System.out.println(newY);
-                        if(getPiece(x, (newY + 1) * 64) != null){
-                            System.out.println(getPiece(x, (newY + 1) * 64).name);
-                            legal = false;
-                            break;
+                    boolean isMoveVertical = (xp - piece.xp) == 0;
+                    boolean isMoveHorizontal = (yp - piece.yp) == 0;
+                    boolean isMoveDown = (yp - piece.yp) > -1 && (xp - piece.xp) == 0;
+                    boolean isMoveRight = (xp - piece.xp) > -1 && (yp - piece.yp) == 0;
+                    if(isMoveDown && isMoveVertical){
+                        for(int newY = piece.yp; newY<yp-1; newY++){
+                            if(getPiece(x, (newY + 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                    }else if(!isMoveDown && isMoveVertical) {
+                        for(int newY = piece.yp; newY>yp+1; newY--){
+                            if(getPiece(x, (newY - 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
                         }
                     }
+                    else if(isMoveRight &&  isMoveHorizontal){
+                        for(int newX = piece.xp; newX<xp-1; newX++){
+                            if(getPiece((newX + 1) * 64, y) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                    }else if (!isMoveRight && isMoveHorizontal){
+                        for(int newX = piece.xp; newX>xp+1; newX--){
+                            if(getPiece((newX - 1) * 64, y) != null){
+                                System.out.println(getPiece((newX - 1) * 64, y).name);
+                                legal = false;
+                                break;
+                            }
+                        }
+                    }
+
                     result = legal;
                 }
                 break;
@@ -226,7 +252,72 @@ public class ChessGame {
 
             case "bishop":
                 if((xp - piece.xp) == (yp - piece.yp) || (piece.yp - yp) == (xp - piece.xp)){
-                    result = true;
+                    boolean legal = true;
+                    boolean isMoveTopRight = (((xp - piece.xp) == Math.abs(piece.yp - yp)) && (piece.yp - yp) >= 1);
+                    boolean isMoveDownRight = (((xp - piece.xp) == Math.abs(piece.yp - yp)) && (piece.yp - yp) <= -1);
+                    boolean isMoveTopLeft = (((piece.xp - xp) == (piece.yp - yp)) && (piece.yp - yp) >= 1);
+                    boolean isMoveBottomLeft = (((xp - piece.xp) == (piece.yp - yp)) && (piece.yp - yp) <= -1);
+                    System.out.println(isMoveTopLeft);
+                    if(isMoveTopRight){
+                        for(int newY = piece.yp; newY>yp+1; newY--){
+                            if(getPiece(x, (newY - 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                        for(int newX = piece.xp; newX<xp-1; newX++){
+                            if(getPiece((newX + 1) * 64, y) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                    }else if(isMoveDownRight){
+                        for(int newY = piece.yp; newY<yp-1; newY++){
+                            if(getPiece(x, (newY + 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                        for(int newX = piece.xp; newX<xp-1; newX++){
+                            if(getPiece((newX + 1) * 64, y) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+
+                    }else if(isMoveTopLeft){
+                        for(int newY = piece.yp; newY>yp+1; newY--){
+                            System.out.println(newY);
+                            if(getPiece(x, (newY - 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                        for(int newX = piece.xp; newX>xp+1; newX--){
+                            System.out.println(newX);
+                            if(getPiece((newX - 1) * 64, y) != null){
+                                System.out.println(getPiece((newX - 1) * 64, y).name);
+                                legal = false;
+                                break;
+                            }
+                        }
+
+                    }else if(isMoveBottomLeft){
+                        for(int newY = piece.yp; newY<yp-1; newY++){
+                            if(getPiece(x, (newY + 1) * 64) != null){
+                                legal = false;
+                                break;
+                            }
+                        }
+                        for(int newX = piece.xp; newX>xp+1; newX--){
+                            if(getPiece((newX - 1) * 64, y) != null){
+                                System.out.println(getPiece((newX - 1) * 64, y).name);
+                                legal = false;
+                                break;
+                            }
+                        }
+                    }
+                    result = legal;
                 }
                 break;
 
@@ -237,20 +328,128 @@ public class ChessGame {
                 break;
 
             case "queen":
-                boolean legal = true;
-                for(int newY = piece.yp; newY<yp; newY++){
-                    if(getPiece(xp * 64, (newY + 1) * 64) != null){
-                        legal = false;
-                        break;
+                if(
+                        ((xp - piece.xp) == 0 && (yp - piece.yp) != 0)
+                        || ((xp - piece.xp) != 0 && (yp - piece.yp) == 0)
+                        || ((piece.yp - yp) == (piece.xp - xp)
+                        || (piece.yp - yp) == (piece.xp + xp)
+                        || (piece.yp + yp) == (piece.xp - xp)
+                        || (xp - piece.xp) == -(yp - piece.yp))
+                ){
+                    boolean legal = true;
+                    boolean isMoveVertical = (xp - piece.xp) == 0;
+                    boolean isMoveHorizontal = (yp - piece.yp) == 0;
+                    boolean isMoveDown = (yp - piece.yp) > -1 && (xp - piece.xp) == 0;
+                    boolean isMoveRight = (xp - piece.xp) > -1 && (yp - piece.yp) == 0;
+                    if(!isMoveVertical && !isMoveHorizontal){
+                        boolean isMoveTopRight = (((xp - piece.xp) == Math.abs(piece.yp - yp)) && (piece.yp - yp) >= 1);
+                        boolean isMoveDownRight = (((xp - piece.xp) == Math.abs(piece.yp - yp)) && (piece.yp - yp) <= -1);
+                        boolean isMoveTopLeft = (((piece.xp - xp) == (piece.yp - yp)) && (piece.yp - yp) >= 1);
+                        boolean isMoveBottomLeft = (((xp - piece.xp) == (piece.yp - yp)) && (piece.yp - yp) <= -1);
+                        if(isMoveTopRight){
+                            for(int newY = piece.yp; newY>yp+1; newY--){
+                                System.out.println(newY);
+                                System.out.println("check these coordinates: " + x/64 + " - " + (newY - 1));
+                                if(getPiece(x, (newY - 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                            for(int newX = piece.xp; newX<xp-1; newX++){
+                                System.out.println(newX);
+                                if(getPiece((newX + 1) * 64, y) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }else if(isMoveDownRight){
+                            for(int newY = piece.yp; newY<yp-1; newY++){
+                                System.out.println(newY);
+                                if(getPiece(x, (newY + 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                            for(int newX = piece.xp; newX<xp-1; newX++){
+                                System.out.println(newX);
+                                if(getPiece((newX + 1) * 64, y) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+
+                        }else if(isMoveTopLeft){
+                            for(int newY = piece.yp; newY>yp+1; newY--){
+                                System.out.println(newY);
+                                if(getPiece(x, (newY - 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                            for(int newX = piece.xp; newX>xp+1; newX--){
+                                System.out.println(newX);
+                                if(getPiece((newX - 1) * 64, y) != null){
+                                    System.out.println(getPiece((newX - 1) * 64, y).name);
+                                    legal = false;
+                                    break;
+                                }
+                            }
+
+                        }else if(isMoveBottomLeft){
+                            for(int newY = piece.yp; newY<yp-1; newY++){
+                                if(getPiece(x, (newY + 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                            for(int newX = piece.xp; newX>xp+1; newX--){
+                                if(getPiece((newX - 1) * 64, y) != null){
+                                    System.out.println(getPiece((newX - 1) * 64, y).name);
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
-                }
-                for(int newX = piece.xp; newX<xp; newX++){
-                    if(getPiece((newX + 1), y) != null){
-                        legal = false;
-                        break;
+                    else {
+                        if(isMoveDown && isMoveVertical){
+                            for(int newY = piece.yp; newY<yp-1; newY++){
+                                if(getPiece(x, (newY + 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }else if(!isMoveDown && isMoveVertical) {
+                            for(int newY = piece.yp; newY>yp+1; newY--){
+                                if(getPiece(x, (newY - 1) * 64) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else if(isMoveRight &&  isMoveHorizontal){
+                            for(int newX = piece.xp; newX<xp-1; newX++){
+                                if(getPiece((newX + 1) * 64, y) != null){
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }else if (!isMoveRight && isMoveHorizontal){
+                            for(int newX = piece.xp; newX>xp+1; newX--){
+                                if(getPiece((newX - 1) * 64, y) != null){
+                                    System.out.println(getPiece((newX - 1) * 64, y).name);
+                                    legal = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
+
+
+                    result = legal;
                 }
-                result = legal;
+                break;
+
         }
         return result;
     }
